@@ -1,5 +1,5 @@
 # ==============================================================================
-# Translucent — Stealth AI Copilot for Windows
+# Translucent - Stealth AI Copilot for Windows
 # Official 1-Command PowerShell Installer
 #
 # Usage:
@@ -11,13 +11,10 @@ $ErrorActionPreference = "Stop"
 
 function Write-TranslucentBanner {
     Write-Host ""
-    Write-Host "   ████████╗██████╗  █████╗ ███╗   ██╗███████╗██╗     ██╗   ██╗ ██████╗███████╗███╗   ██╗████████╗" -ForegroundColor Cyan
-    Write-Host "   ╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██║     ██║   ██║██╔════╝██╔════╝████╗  ██║╚══██╔══╝" -ForegroundColor Cyan
-    Write-Host "      ██║   ██████╔╝███████║██╔██╗ ██║███████╗██║     ██║   ██║██║     █████╗  ██╔██╗ ██║   ██║   " -ForegroundColor Magenta
-    Write-Host "      ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║██║     ██║   ██║██║     ██╔══╝  ██║╚██╗██║   ██║   " -ForegroundColor Magenta
-    Write-Host "      ██║   ██║  ██║██║  ██║██║ ╚████║███████║███████╗╚██████╔╝╚██████╗███████╗██║ ╚████║   ██║   " -ForegroundColor Blue
-    Write-Host "      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝ ╚═════╝  ╚═════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   " -ForegroundColor Blue
-    Write-Host "                            The Stealth AI Copilot for Windows                                  " -ForegroundColor Gray
+    Write-Host "   ==========================================================================" -ForegroundColor Cyan
+    Write-Host "                               T R A N S L U C E N T                         " -ForegroundColor Cyan
+    Write-Host "                         The Stealth AI Copilot for Windows                  " -ForegroundColor Magenta
+    Write-Host "   ==========================================================================" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -67,7 +64,6 @@ try {
             Write-Host "[>] Downloading Translucent from GitHub Releases..." -ForegroundColor Cyan
             Write-Host "    Source: $url" -ForegroundColor DarkGray
             
-            # Use WebClient for clean download speed and progress reporting
             $webClient = New-Object System.Net.WebClient
             $webClient.Headers.Add("User-Agent", "Translucent-Installer/1.0 (Windows)")
             $webClient.DownloadFile($url, $TempExe)
@@ -99,7 +95,7 @@ try {
         $shortcut.TargetPath = $TargetExe
         $shortcut.WorkingDirectory = $InstallDir
         $shortcut.IconLocation = "$TargetExe,0"
-        $shortcut.Description = "Translucent — Stealth AI Copilot for Windows"
+        $shortcut.Description = "Translucent - Stealth AI Copilot for Windows"
         $shortcut.Save()
         Write-Host "[+] Created Start Menu shortcut: Translucent" -ForegroundColor Green
     } catch {
@@ -108,82 +104,9 @@ try {
 
     # 8. Create Dedicated Uninstaller Script
     try {
-        $uninstallCode = @'
-[CmdletBinding()]
-param([switch]$Quiet, [switch]$Force)
-
-$ErrorActionPreference = "SilentlyContinue"
-
-try {
-    Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
-} catch {}
-
-if (-not $Quiet -and -not $Force) {
-    try {
-        $res = [System.Windows.Forms.MessageBox]::Show(
-            "Are you sure you want to uninstall Translucent and remove all of its components?",
-            "Uninstall Translucent",
-            [System.Windows.Forms.MessageBoxButtons]::YesNo,
-            [System.Windows.Forms.MessageBoxIcon]::Question
-        )
-        if ($res -ne [System.Windows.Forms.DialogResult]::Yes) {
-            exit 0
-        }
-    } catch {}
-}
-
-# 1. Terminate running process
-Get-Process -Name "Translucent" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-Start-Sleep -Milliseconds 400
-
-# 2. Remove Shortcuts
-$Shortcuts = @(
-    (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Translucent.lnk"),
-    (Join-Path ([Environment]::GetFolderPath("Desktop")) "Translucent.lnk")
-)
-foreach ($sc in $Shortcuts) {
-    if (Test-Path $sc) {
-        Remove-Item -Path $sc -Force -ErrorAction SilentlyContinue
-    }
-}
-
-# 3. Clean user PATH
-try {
-    $dir = if ($PSScriptRoot) { $PSScriptRoot } else { Join-Path $env:LOCALAPPDATA "Programs\Translucent" }
-    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    if ($userPath -like "*$dir*") {
-        $paths = $userPath -split ";" | Where-Object { $_ -and ($_ -ne $dir) }
-        [Environment]::SetEnvironmentVariable("Path", ($paths -join ";"), "User")
-    }
-} catch {}
-
-# 4. Remove Uninstall Registry Key
-try {
-    $regKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Translucent"
-    if (Test-Path $regKey) {
-        Remove-Item -Path $regKey -Recurse -Force -ErrorAction SilentlyContinue
-    }
-} catch {}
-
-# 5. Remove Installation Directory
-try {
-    $dir = if ($PSScriptRoot) { $PSScriptRoot } else { Join-Path $env:LOCALAPPDATA "Programs\Translucent" }
-    Remove-Item -Path (Join-Path $dir "Translucent.exe") -Force -ErrorAction SilentlyContinue
-    Start-Process cmd.exe -ArgumentList "/c ping 127.0.0.1 -n 2 >nul & rmdir /s /q `"$dir`"" -WindowStyle Hidden
-} catch {}
-
-if (-not $Quiet -and -not $Force) {
-    try {
-        [System.Windows.Forms.MessageBox]::Show(
-            "Translucent was successfully uninstalled from your computer.",
-            "Uninstall Translucent",
-            [System.Windows.Forms.MessageBoxButtons]::OK,
-            [System.Windows.Forms.MessageBoxIcon]::Information
-        ) | Out-Null
-    } catch {}
-}
-'@
-        [System.IO.File]::WriteAllText($UninstallScript, $uninstallCode, [System.Text.Encoding]::UTF8)
+        $uninstallBase64 = "W0NtZGxldEJpbmRpbmcoKV0KcGFyYW0oW3N3aXRjaF0kUXVpZXQsIFtzd2l0Y2hdJEZvcmNlKQoKJEVycm9yQWN0aW9uUHJlZmVyZW5jZSA9ICJTaWxlbnRseUNvbnRpbnVlIgoKdHJ5IHsKICAgIEFkZC1UeXBlIC1Bc3NlbWJseU5hbWUgU3lzdGVtLldpbmRvd3MuRm9ybXMgLUVycm9yQWN0aW9uIFNpbGVudGx5Q29udGludWUKfSBjYXRjaCB7fQoKaWYgKC1ub3QgJFF1aWV0IC1hbmQgLW5vdCAkRm9yY2UpIHsKICAgIHRyeSB7CiAgICAgICAgJHJlcyA9IFtTeXN0ZW0uV2luZG93cy5Gb3Jtcy5NZXNzYWdlQm94XTo6U2hvdygKICAgICAgICAgICAgIlFyZSB5b3Ugc3VyZSB5b3Ugd2FudCB0byB1bmluc3RhbGwgVHJhbnNsdWNlbnQgYW5kIHJlbW92ZSBhbGwgb2YgaXRzIGNvbXBvbmVudHM/IiwKICAgICAgICAgICAgIlVuaW5zdGFsbCBUcmFuc2x1Y2VudCIsCiAgICAgICAgICAgIFtTeXN0ZW0uV2luZG93cy5Gb3Jtcy5NZXNzYWdlQm94QnV0dG9uc106Olllc05vLAogICAgICAgICAgICBbU3lzdGVtLldpbmRvd3MuRm9ybXMuTWVzc2FnZUJveEljb25dOjpRdWVzdGlvbgogICAgICAgICkKICAgICAgICBpZiAoJHJlcyAtbmUgW1N5c3RlbS5XaW5kb3dzLkZvcm1zLkRpYWxvZ1Jlc3VsdF06OlllcykgewogICAgICAgICAgICBleGl0IDAKICAgICAgICB9CiAgICB9IGNhdGNoIHt9Cn0KCiMgMS4gVGVybWluYXRlIHJ1bm5pbmcgcHJvY2VzcwpHZXQtUHJvY2VzcyAtTmFtZSAiVHJhbnNsdWNlbnQiIC1FcnJvckFjdGlvbiBTaWxlbnRseUNvbnRpbnVlIHwgU3RvcC1Qcm9jZXNzIC1Gb3JjZSAtRXJyb3JBY3Rpb24gU2lsZW50bHlDb250aW51ZQpTdGFydC1TbGVlcCAtTWlsbGlzZWNvbmRzIDQwMAoKIyAyLiBSZW1vdmUgU2hvcnRjdXRzCiRTaG9ydGN1dHMgPSBAKAogICAgKEpvaW4tUGF0aCAkZW52OkFQUERBVEEgIk1pY3Jvc29mdFxXaW5kb3dzXFN0YXJ0IE1lbnVcUHJvZ3JhbXNcVHJhbnNsdWNlbnQubG5rIiksCiAgICAoSm9pbi1QYXRoIChbRW52aXJvbm1lbnRdOjpHZXRGb2xkZXJQYXRoKCJEZXNrdG9wIikpICJUcmFuc2x1Y2VudC5sbmsiKQopCmZvcmVhY2ggKCRzYyBpbiAkU2hvcnRjdXRzKSB7CiAgICBpZiAoVGVzdC1QYXRoICRzYykgewogICAgICAgIFJlbW92ZS1JdGVtIC1QYXRoICRzYyAtRm9yY2UgLUVycm9yQWN0aW9uIFNpbGVudGx5Q29udGludWUKICAgIH0KfQoKIyAzLiBDbGVhbiB1c2VyIFBBVEgKdHJ5IHsKICAgICRkaXIgPSBpZiAoJFBTU2NyaXB0Um9vdCkgeyAkUFNTY3JpcHRSb290IH0gZWxzZSB7IEpvaW4tUGF0aCAkZW52OkxPQ0FMQVBQREFUQSAiUHJvZ3JhbXNcVHJhbnNsdWNlbnQiIH0KICAgICR1c2VyUGF0aCA9IFtFbnZpcm9ubWVudF06OkdldEVudmlyb25tZW50VmFyaWFibGUoIlBhdGgiLCAiVXNlciIpCiAgICBpZiAoJHVzZXJQYXRoIC1saWtlICIqJGRpcioiKSB7CiAgICAgICAgJHBhdGhzID0gJHVzZXJQYXRoIC1zcGxpdCAiOyIgfCBXaGVyZS1PYmplY3QgeyAkXyAtYW5kICgkXyAtbmUgJGRpcikgfQogICAgICAgIFtFbnZpcm9ubWVudF06OlNldEVudmlyb25tZW50VmFyaWFibGUoIlBhdGgiLCAoJHBhdGhzIC1qb2luICI7IiksICJVc2VyIikKICAgIH0KfSBjYXRjaCB7fQoKIyA0LiBSZW1vdmUgVW5pbnN0YWxsIFJlZ2lzdHJ5IEtleQp0cnkgewogICAgJHJlZ0tleSA9ICJIS0NVOlxTb2Z0d2FyZVxNaWNyb3NvZnRcV2luZG93c1xDdXJyZW50VmVyc2lvblxVbmluc3RhbGxcVHJhbnNsdWNlbnQiCiAgICBpZiAoVGVzdC1QYXRoICRyZWdLZXkpIHsKICAgICAgICBSZW1vdmUtSXRlbSAtUGF0aCAkcmVnS2V5IC1SZWN1cnNlIC1Gb3JjZSAtRXJyb3JBY3Rpb24gU2lsZW50bHlDb250aW51ZQogICAgfQp9IGNhdGNoIHt9CgojIDUuIFJlbW92ZSBJbnN0YWxsYXRpb24gRGlyZWN0b3J5CnRyeSB7CiAgICAkZGlyID0gaWYgKCRQU1NjcmlwdFJvb3QpIHsgJFBTU2NyaXB0Um9vdCB9IGVsc2UgeyBKb2luLVBhdGggJGVudjpMT0NBTEFQUERBVEEgIlByb2dyYW1zXFRyYW5zbHVjZW50IiB9CiAgICBSZW1vdmUtSXRlbSAtUGF0aCAoSm9pbi1QYXRoICRkaXIgIlRyYW5zbHVjZW50LmV4ZSIpIC1Gb3JjZSAtRXJyb3JBY3Rpb24gU2lsZW50bHlDb250aW51ZQogICAgU3RhcnQtUHJvY2VzcyBjbWQuZXhlIC1Bcmd1bWVudExpc3QgIi9jIHBpbmcgMTI3LjAuMC4xIC1uIDIgPm51bCAmIHJtZGlyIC9zIC9xIGAiJGRpcmAiIiAtV2luZG93U3R5bGUgSGlkZGVuCn0gY2F0Y2gge30KCmlmICgtbm90ICRRdWlldCAtYW5kIC1ub3QgJEZvcmNlKSB7CiAgICB0cnkgewogICAgICAgIFtTeXN0ZW0uV2luZG93cy5Gb3Jtcy5NZXNzYWdlQm94XTo6U2hvdygKICAgICAgICAgICAgIlRyYW5zbHVjZW50IHdhcyBzdWNjZXNzZnVsbHkgdW5pbnN0YWxsZWQgZnJvbSB5b3VyIGNvbXB1dGVyLiIsCiAgICAgICAgICAgICJVbmluc3RhbGwgVHJhbnNsdWNlbnQiLAogICAgICAgICAgICBbU3lzdGVtLldpbmRvd3MuRm9ybXMuTWVzc2FnZUJveEJ1dHRvbnNdOjpPSywKICAgICAgICAgICAgW1N5c3RlbS5XaW5kb3dzLkZvcm1zLk1lc3NhZ2VCb3hJY29uXTo6SW5mb3JtYXRpb24KICAgICAgICApIHwgT3V0LU51bGwKICAgIH0gY2F0Y2gge30KfQo="
+        $uninstallBytes = [System.Convert]::FromBase64String($uninstallBase64)
+        [System.IO.File]::WriteAllBytes($UninstallScript, $uninstallBytes)
         Write-Host "[+] Configured Uninstaller script at $UninstallScript" -ForegroundColor Green
     } catch {
         Write-Host "[-] Note: Uninstaller creation note: $($_.Exception.Message)" -ForegroundColor DarkGray
@@ -233,7 +156,7 @@ if (-not $Quiet -and -not $Force) {
     # 11. Launch Application
     Write-Host ""
     Write-Host "======================================================================" -ForegroundColor Green
-    Write-Host " [✓] Translucent installed successfully!" -ForegroundColor Green
+    Write-Host " [+] Translucent installed successfully!" -ForegroundColor Green
     Write-Host "     Location: $TargetExe" -ForegroundColor White
     Write-Host "     Uninstall: Apps > Installed apps OR Control Panel" -ForegroundColor Gray
     Write-Host "     Hotkeys:  Ctrl + Shift + V (Summon) | Ctrl + Shift + H (Ghost Mode)" -ForegroundColor Cyan
