@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # Translucent - Stealth AI Copilot for Windows
 # Official 1-Command PowerShell Installer
 #
@@ -7,14 +7,18 @@
 # ==============================================================================
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $ErrorActionPreference = "Stop"
 
 function Write-TranslucentBanner {
     Write-Host ""
-    Write-Host "   ==========================================================================" -ForegroundColor Cyan
-    Write-Host "                               T R A N S L U C E N T                         " -ForegroundColor Cyan
-    Write-Host "                         The Stealth AI Copilot for Windows                  " -ForegroundColor Magenta
-    Write-Host "   ==========================================================================" -ForegroundColor Cyan
+    Write-Host "   ████████╗██████╗  █████╗ ███╗   ██╗███████╗██╗     ██╗   ██╗ ██████╗███████╗███╗   ██╗████████╗" -ForegroundColor Cyan
+    Write-Host "   ╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██║     ██║   ██║██╔════╝██╔════╝████╗  ██║╚══██╔══╝" -ForegroundColor Cyan
+    Write-Host "      ██║   ██████╔╝███████║██╔██╗ ██║███████╗██║     ██║   ██║██║     █████╗  ██╔██╗ ██║   ██║   " -ForegroundColor Magenta
+    Write-Host "      ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║██║     ██║   ██║██║     ██╔══╝  ██║╚██╗██║   ██║   " -ForegroundColor Magenta
+    Write-Host "      ██║   ██║  ██║██║  ██║██║ ╚████║███████║███████╗╚██████╔╝╚██████╗███████╗██║ ╚████║   ██║   " -ForegroundColor Blue
+    Write-Host "      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝ ╚═════╝  ╚═════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   " -ForegroundColor Blue
+    Write-Host "                            The Stealth AI Copilot for Windows                                  " -ForegroundColor Gray
     Write-Host ""
 }
 
@@ -156,7 +160,7 @@ try {
     # 11. Launch Application
     Write-Host ""
     Write-Host "======================================================================" -ForegroundColor Green
-    Write-Host " [+] Translucent installed successfully!" -ForegroundColor Green
+    Write-Host " [✓] Translucent installed successfully!" -ForegroundColor Green
     Write-Host "     Location: $TargetExe" -ForegroundColor White
     Write-Host "     Uninstall: Apps > Installed apps OR Control Panel" -ForegroundColor Gray
     Write-Host "     Hotkeys:  Ctrl + Shift + V (Summon) | Ctrl + Shift + H (Ghost Mode)" -ForegroundColor Cyan
