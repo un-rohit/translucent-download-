@@ -36,6 +36,7 @@ try {
     # 2. Paths Configuration
     $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\Translucent"
     $TargetExe  = Join-Path $InstallDir "Translucent.exe"
+    $UninstallScript = Join-Path $InstallDir "uninstall.ps1"
     $ShortcutDir = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
     $ShortcutPath = Join-Path $ShortcutDir "Translucent.lnk"
 
@@ -105,7 +106,118 @@ try {
         Write-Host "[-] Note: Start menu shortcut creation skipped ($($_.Exception.Message))" -ForegroundColor DarkGray
     }
 
-    # 8. Add to User Environment PATH
+    # 8. Create Dedicated Uninstaller Script
+    try {
+        $uninstallCode = @'
+[CmdletBinding()]
+param([switch]$Quiet, [switch]$Force)
+
+$ErrorActionPreference = "SilentlyContinue"
+
+try {
+    Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
+} catch {}
+
+if (-not $Quiet -and -not $Force) {
+    try {
+        $res = [System.Windows.Forms.MessageBox]::Show(
+            "Are you sure you want to uninstall Translucent and remove all of its components?",
+            "Uninstall Translucent",
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Question
+        )
+        if ($res -ne [System.Windows.Forms.DialogResult]::Yes) {
+            exit 0
+        }
+    } catch {}
+}
+
+# 1. Terminate running process
+Get-Process -Name "Translucent" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 400
+
+# 2. Remove Shortcuts
+$Shortcuts = @(
+    (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Translucent.lnk"),
+    (Join-Path ([Environment]::GetFolderPath("Desktop")) "Translucent.lnk")
+)
+foreach ($sc in $Shortcuts) {
+    if (Test-Path $sc) {
+        Remove-Item -Path $sc -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# 3. Clean user PATH
+try {
+    $dir = if ($PSScriptRoot) { $PSScriptRoot } else { Join-Path $env:LOCALAPPDATA "Programs\Translucent" }
+    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($userPath -like "*$dir*") {
+        $paths = $userPath -split ";" | Where-Object { $_ -and ($_ -ne $dir) }
+        [Environment]::SetEnvironmentVariable("Path", ($paths -join ";"), "User")
+    }
+} catch {}
+
+# 4. Remove Uninstall Registry Key
+try {
+    $regKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Translucent"
+    if (Test-Path $regKey) {
+        Remove-Item -Path $regKey -Recurse -Force -ErrorAction SilentlyContinue
+    }
+} catch {}
+
+# 5. Remove Installation Directory
+try {
+    $dir = if ($PSScriptRoot) { $PSScriptRoot } else { Join-Path $env:LOCALAPPDATA "Programs\Translucent" }
+    Remove-Item -Path (Join-Path $dir "Translucent.exe") -Force -ErrorAction SilentlyContinue
+    Start-Process cmd.exe -ArgumentList "/c ping 127.0.0.1 -n 2 >nul & rmdir /s /q `"$dir`"" -WindowStyle Hidden
+} catch {}
+
+if (-not $Quiet -and -not $Force) {
+    try {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Translucent was successfully uninstalled from your computer.",
+            "Uninstall Translucent",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        ) | Out-Null
+    } catch {}
+}
+'@
+        [System.IO.File]::WriteAllText($UninstallScript, $uninstallCode, [System.Text.Encoding]::UTF8)
+        Write-Host "[+] Configured Uninstaller script at $UninstallScript" -ForegroundColor Green
+    } catch {
+        Write-Host "[-] Note: Uninstaller creation note: $($_.Exception.Message)" -ForegroundColor DarkGray
+    }
+
+    # 9. Register with Windows Settings & Control Panel ("Installed Apps" & "Uninstall a program")
+    try {
+        $regKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Translucent"
+        if (-not (Test-Path $regKey)) {
+            New-Item -Path $regKey -Force | Out-Null
+        }
+        $fileSizeKB = if (Test-Path $TargetExe) { [int]((Get-Item $TargetExe).Length / 1KB) } else { 77000 }
+        $UninstallCommand = "powershell.exe -ExecutionPolicy Bypass -File `"$UninstallScript`""
+        $QuietUninstallCommand = "powershell.exe -ExecutionPolicy Bypass -File `"$UninstallScript`" -Quiet"
+
+        Set-ItemProperty -Path $regKey -Name "DisplayName" -Value "Translucent" -Type String
+        Set-ItemProperty -Path $regKey -Name "DisplayVersion" -Value "1.0.12" -Type String
+        Set-ItemProperty -Path $regKey -Name "Publisher" -Value "Translucent" -Type String
+        Set-ItemProperty -Path $regKey -Name "DisplayIcon" -Value "$TargetExe,0" -Type String
+        Set-ItemProperty -Path $regKey -Name "InstallLocation" -Value "$InstallDir" -Type String
+        Set-ItemProperty -Path $regKey -Name "InstallDate" -Value (Get-Date -Format 'yyyyMMdd') -Type String
+        Set-ItemProperty -Path $regKey -Name "UninstallString" -Value $UninstallCommand -Type String
+        Set-ItemProperty -Path $regKey -Name "QuietUninstallString" -Value $QuietUninstallCommand -Type String
+        Set-ItemProperty -Path $regKey -Name "EstimatedSize" -Value $fileSizeKB -Type DWord
+        Set-ItemProperty -Path $regKey -Name "HelpLink" -Value "https://translucent-livid.vercel.app" -Type String
+        Set-ItemProperty -Path $regKey -Name "URLInfoAbout" -Value "https://translucent-livid.vercel.app" -Type String
+        Set-ItemProperty -Path $regKey -Name "NoModify" -Value 1 -Type DWord
+        Set-ItemProperty -Path $regKey -Name "NoRepair" -Value 1 -Type DWord
+        Write-Host "[+] Registered in Windows Installed Apps & Control Panel" -ForegroundColor Green
+    } catch {
+        Write-Host "[-] Note: Windows registry registration note: $($_.Exception.Message)" -ForegroundColor DarkGray
+    }
+
+    # 10. Add to User Environment PATH
     try {
         $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
         if ($userPath -notlike "*$InstallDir*") {
@@ -118,11 +230,12 @@ try {
         Write-Host "[-] PATH registration note: $($_.Exception.Message)" -ForegroundColor DarkGray
     }
 
-    # 9. Launch Application
+    # 11. Launch Application
     Write-Host ""
     Write-Host "======================================================================" -ForegroundColor Green
     Write-Host " [✓] Translucent installed successfully!" -ForegroundColor Green
     Write-Host "     Location: $TargetExe" -ForegroundColor White
+    Write-Host "     Uninstall: Apps > Installed apps OR Control Panel" -ForegroundColor Gray
     Write-Host "     Hotkeys:  Ctrl + Shift + V (Summon) | Ctrl + Shift + H (Ghost Mode)" -ForegroundColor Cyan
     Write-Host "======================================================================" -ForegroundColor Green
     Write-Host ""
