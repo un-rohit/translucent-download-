@@ -1,11 +1,19 @@
-## 🚀 Translucent v1.0.11
+## ⚡ Translucent v1.2.00
 
 ### What's New:
-* 🎨 **Redesigned Settings Hub:** Unified 5-category sidebar navigation (AI & Models, Global Shortcuts, General Preferences, Audio & Voice, and License Management).
-* 🧪 **Microsoft Store Reviewer Support:** Added 1-click instant test bypass and verified offline fallback for Surface certification testing.
-* 🛡️ **Verified Code Signing:** Authenticode signed with DigiCert RFC 3161 timestamping for smooth Windows 10 / 11 Defender SmartScreen verification.
-* ⚡ **Performance & Stealth Improvements:** Optimized WebView2 stealth browser lifecycle and enhanced OCR screen capture speed.
+* 🚀 **In-App Feature Telemetry & Profile Analytics:** Full usage telemetry and local performance diagnostics.
+* 📦 **Optimized Packaging & Zero-Bloat MSIX (49% Reduction):** Streamlined package down to 143 MB by eliminating duplicate binaries.
+* 👁 **Enhanced Screen Snip Vision & OCR Engine:** Faster sub-second regional OCR processing and instant problem solving (`Ctrl + Shift + S`).
+* 🎙 **Refined Meeting Audio Listener & Whisper AI:** Improved WASAPI loopback audio stream stability and offline on-device speech transcription.
+* 🌐 **Stealth Multi-Tab Chromium Browser:** Upgraded Microsoft WebView2 browser tab management, prompt auto-insertion, and instant hotkey navigation.
+* ⚡ **Performance & Stability:** .NET 8 self-contained runtime optimizations and DPAPI key security.
+
+### 1-Line Terminal Install:
+```powershell
+irm https://raw.githubusercontent.com/un-rohit/translucent-download-/main/install.ps1 | iex
+```
 
 ### Downloads:
-* **Translucent.exe** — Portable standalone binary (zero installation required).
-* **Translucent.msix** — Official Windows app package installer.
+* **Translucent.Standalone.exe** - Portable standalone executable (zero installation required).
+* **Translucent-Setup.exe** - Windows installer setup wizard.
+* **Translucent.msix** - Official Windows App Store MSIX package.

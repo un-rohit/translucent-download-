@@ -54,10 +54,23 @@ try {
         New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
     }
 
-    # 5. Download URLs (Primary GitHub release with reliable fallbacks)
+    # 5. Determine Latest Version & Download URLs
+    $LatestReleaseTag = "v1.2.00"
+    $LatestVersion = "1.2.00"
+    try {
+        $apiRel = Invoke-RestMethod -Uri "https://api.github.com/repos/un-rohit/translucent-download-/releases/latest" -Headers @{"User-Agent"="Translucent-Installer"} -TimeoutSec 6 -ErrorAction SilentlyContinue
+        if ($apiRel -and $apiRel.tag_name) {
+            $LatestReleaseTag = $apiRel.tag_name
+            $LatestVersion = $LatestReleaseTag.TrimStart('v')
+        }
+    } catch {}
+
     $DownloadUrls = @(
-        "https://github.com/un-rohit/translucent-download-/releases/download/v1.0.12/Translucent.exe",
-        "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.exe"
+        "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.Standalone.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/download/$LatestReleaseTag/Translucent.Standalone.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/download/$LatestReleaseTag/Translucent.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.00/Translucent.Standalone.exe"
     )
 
     $Downloaded = $false
@@ -65,7 +78,7 @@ try {
 
     foreach ($url in $DownloadUrls) {
         try {
-            Write-Host "[>] Downloading Translucent from GitHub Releases..." -ForegroundColor Cyan
+            Write-Host "[>] Downloading Translucent ($LatestReleaseTag) from GitHub Releases..." -ForegroundColor Cyan
             Write-Host "    Source: $url" -ForegroundColor DarkGray
             
             $webClient = New-Object System.Net.WebClient
@@ -122,12 +135,12 @@ try {
         if (-not (Test-Path $regKey)) {
             New-Item -Path $regKey -Force | Out-Null
         }
-        $fileSizeKB = if (Test-Path $TargetExe) { [int]((Get-Item $TargetExe).Length / 1KB) } else { 77000 }
+        $fileSizeKB = if (Test-Path $TargetExe) { [int]((Get-Item $TargetExe).Length / 1KB) } else { 150000 }
         $UninstallCommand = "powershell.exe -ExecutionPolicy Bypass -File `"$UninstallScript`""
         $QuietUninstallCommand = "powershell.exe -ExecutionPolicy Bypass -File `"$UninstallScript`" -Quiet"
 
         Set-ItemProperty -Path $regKey -Name "DisplayName" -Value "Translucent" -Type String
-        Set-ItemProperty -Path $regKey -Name "DisplayVersion" -Value "1.0.12" -Type String
+        Set-ItemProperty -Path $regKey -Name "DisplayVersion" -Value $LatestVersion -Type String
         Set-ItemProperty -Path $regKey -Name "Publisher" -Value "Translucent" -Type String
         Set-ItemProperty -Path $regKey -Name "DisplayIcon" -Value "$TargetExe,0" -Type String
         Set-ItemProperty -Path $regKey -Name "InstallLocation" -Value "$InstallDir" -Type String
@@ -160,7 +173,7 @@ try {
     # 11. Launch Application
     Write-Host ""
     Write-Host "======================================================================" -ForegroundColor Green
-    Write-Host " [✓] Translucent installed successfully!" -ForegroundColor Green
+    Write-Host " [✓] Translucent v$LatestVersion installed successfully!" -ForegroundColor Green
     Write-Host "     Location: $TargetExe" -ForegroundColor White
     Write-Host "     Uninstall: Apps > Installed apps OR Control Panel" -ForegroundColor Gray
     Write-Host "     Hotkeys:  Ctrl + Shift + V (Summon) | Ctrl + Shift + H (Ghost Mode)" -ForegroundColor Cyan
@@ -174,6 +187,6 @@ try {
     Write-Host ""
     Write-Host "[X] Installation failed: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "    You can download the standalone executable directly from:" -ForegroundColor Yellow
-    Write-Host "    https://github.com/un-rohit/translucent-download-/releases/tag/v1.0.12" -ForegroundColor White
+    Write-Host "    https://github.com/un-rohit/translucent-download-/releases/latest" -ForegroundColor White
     Write-Host ""
 }
