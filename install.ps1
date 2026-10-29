@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # Translucent - Stealth AI Copilot for Windows
 # Official 1-Command PowerShell Installer
 #
@@ -51,8 +51,8 @@ try {
     }
 
     # 5. Determine Latest Version & Download URLs
-    $LatestReleaseTag = "v1.2.2"
-    $LatestVersion = "1.2.2"
+    $LatestReleaseTag = "v1.2.3.0"
+    $LatestVersion = "1.2.3.0"
     try {
         $apiRel = Invoke-RestMethod -Uri "https://api.github.com/repos/un-rohit/translucent-download-/releases/latest" -Headers @{"User-Agent"="Translucent-Installer"} -TimeoutSec 6 -ErrorAction SilentlyContinue
         if ($apiRel -and $apiRel.tag_name) {
@@ -62,15 +62,15 @@ try {
     } catch {}
 
     $DownloadUrls = @(
-        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.2/Translucent-Setup.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.3.0/Translucent-Setup.exe",
         "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent-Setup.exe",
-        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.2/Translucent.Standalone.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.3.0/Translucent.Standalone.exe",
         "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.Standalone.exe",
         "https://translucent-livid.vercel.app/downloads/Translucent-Setup.exe",
         "https://translucent-livid.vercel.app/downloads/Translucent.Standalone.exe",
         "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.exe",
         "https://github.com/un-rohit/translucent-download-/releases/download/$LatestReleaseTag/Translucent.exe",
-        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.2/Translucent.exe"
+        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.3.0/Translucent.exe"
     )
 
     $Downloaded = $false
@@ -195,6 +195,6 @@ try {
     Write-Host ""
     Write-Host "[X] Installation failed: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "    You can download the installer directly from:" -ForegroundColor Yellow
-    Write-Host "    https://github.com/un-rohit/translucent-download-/releases/tag/v1.2.2" -ForegroundColor White
+    Write-Host "    https://github.com/un-rohit/translucent-download-/releases/tag/v1.2.3.0" -ForegroundColor White
     Write-Host ""
 }
