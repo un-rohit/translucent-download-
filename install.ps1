@@ -55,8 +55,8 @@ try {
     }
 
     # 5. Determine Latest Version & Download URLs
-    $LatestReleaseTag = "v1.2.00"
-    $LatestVersion = "1.2.00"
+    $LatestReleaseTag = "v1.2.2"
+    $LatestVersion = "1.2.2"
     try {
         $apiRel = Invoke-RestMethod -Uri "https://api.github.com/repos/un-rohit/translucent-download-/releases/latest" -Headers @{"User-Agent"="Translucent-Installer"} -TimeoutSec 6 -ErrorAction SilentlyContinue
         if ($apiRel -and $apiRel.tag_name) {
@@ -68,9 +68,10 @@ try {
     $DownloadUrls = @(
         "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.Standalone.exe",
         "https://github.com/un-rohit/translucent-download-/releases/download/$LatestReleaseTag/Translucent.Standalone.exe",
+        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.2/Translucent.Standalone.exe",
         "https://github.com/un-rohit/translucent-download-/releases/latest/download/Translucent.exe",
         "https://github.com/un-rohit/translucent-download-/releases/download/$LatestReleaseTag/Translucent.exe",
-        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.00/Translucent.Standalone.exe"
+        "https://github.com/un-rohit/translucent-download-/releases/download/v1.2.2/Translucent.exe"
     )
 
     $Downloaded = $false

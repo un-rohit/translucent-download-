@@ -1,12 +1,11 @@
-## ⚡ Translucent v1.2.00
+## ⚡ Translucent v1.2.2
 
 ### What's New:
-* 🚀 **In-App Feature Telemetry & Profile Analytics:** Full usage telemetry and local performance diagnostics.
-* 📦 **Optimized Packaging & Zero-Bloat MSIX (49% Reduction):** Streamlined package down to 143 MB by eliminating duplicate binaries.
-* 👁 **Enhanced Screen Snip Vision & OCR Engine:** Faster sub-second regional OCR processing and instant problem solving (`Ctrl + Shift + S`).
-* 🎙 **Refined Meeting Audio Listener & Whisper AI:** Improved WASAPI loopback audio stream stability and offline on-device speech transcription.
-* 🌐 **Stealth Multi-Tab Chromium Browser:** Upgraded Microsoft WebView2 browser tab management, prompt auto-insertion, and instant hotkey navigation.
-* ⚡ **Performance & Stability:** .NET 8 self-contained runtime optimizations and DPAPI key security.
+* 🚀 **In-App Auto-Updates & 1-Click Self-Installation:** Live notification cards, direct background downloads with SHA-256 verification, and automatic zero-downtime restarts.
+* 📦 **Web Admin Manual Release Management:** Dedicated version bump controls and broadcast management for connected desktop clients.
+* 👁 **Transparent Floating Mini Bubble:** Eliminates background artifact boxes across Windows 11 & 10 themes with full per-pixel alpha transparency.
+* 🛡 **Unbreakable Always-On-Top:** Topmost priority hooks (`TopmostEnforcer`) ensure the overlay never falls behind third-party windows.
+* 🎙 **Cleaned Up Toolbar:** Prompts consolidated into the Prompts dropdown menu, keeping quick screenshot and OCR actions immediately accessible.
 
 ### 1-Line Terminal Install:
 ```powershell
