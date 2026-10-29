@@ -3,7 +3,7 @@
 # Official 1-Command PowerShell Installer
 #
 # Usage:
-#   irm https://raw.githubusercontent.com/un-rohit/translucent-download-/main/install.ps1 | iex
+#   irm https://translucent-livid.vercel.app/install.ps1 | iex
 # ==============================================================================
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
