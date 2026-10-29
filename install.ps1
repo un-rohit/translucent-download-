@@ -12,13 +12,9 @@ $ErrorActionPreference = "Stop"
 
 function Write-TranslucentBanner {
     Write-Host ""
-    Write-Host "   ████████╗██████╗  █████╗ ███╗   ██╗███████╗██╗     ██╗   ██╗ ██████╗███████╗███╗   ██╗████████╗" -ForegroundColor Cyan
-    Write-Host "   ╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██║     ██║   ██║██╔════╝██╔════╝████╗  ██║╚══██╔══╝" -ForegroundColor Cyan
-    Write-Host "      ██║   ██████╔╝███████║██╔██╗ ██║███████╗██║     ██║   ██║██║     █████╗  ██╔██╗ ██║   ██║   " -ForegroundColor Magenta
-    Write-Host "      ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║██║     ██║   ██║██║     ██╔══╝  ██║╚██╗██║   ██║   " -ForegroundColor Magenta
-    Write-Host "      ██║   ██║  ██║██║  ██║██║ ╚████║███████║███████╗╚██████╔╝╚██████╗███████╗██║ ╚████║   ██║   " -ForegroundColor Blue
-    Write-Host "      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝ ╚═════╝  ╚═════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   " -ForegroundColor Blue
-    Write-Host "                            The Stealth AI Copilot for Windows                                  " -ForegroundColor Gray
+    Write-Host "==========================================================" -ForegroundColor Cyan
+    Write-Host "     TRANSLUCENT - Stealth Desktop AI Copilot for Windows " -ForegroundColor Cyan
+    Write-Host "==========================================================" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -61,7 +57,7 @@ try {
         $apiRel = Invoke-RestMethod -Uri "https://api.github.com/repos/un-rohit/translucent-download-/releases/latest" -Headers @{"User-Agent"="Translucent-Installer"} -TimeoutSec 6 -ErrorAction SilentlyContinue
         if ($apiRel -and $apiRel.tag_name) {
             $LatestReleaseTag = $apiRel.tag_name
-            $LatestVersion = $LatestReleaseTag.TrimStart('v')
+            $LatestVersion = $LatestReleaseTag.Replace("v", "")
         }
     } catch {}
 
